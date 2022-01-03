@@ -1,5 +1,7 @@
 A very barebones implementation of WASI for web browsers, intend to be used/tested with Free Pascal.
+
 For building wasm, execute `fpc -Twasi -Pwasm32 -MObjFPC -Filib/wasm32-wasi -Fu. -FUlib/wasm32-wasi -FE. -oapp.wasm app.pas`
+
 As of this moment, with FPC 3.3.1-9825-gd2447026de, include `Classes` unit will result in error in web browsers. The same error also occur if I try to run it on https://webassembly.sh/.
 
 I also try to run the same wasm binary with wasmer (https://github.com/wasmerio/wasmer):
