@@ -1,9 +1,9 @@
 export const WASI = function() {
   let moduleInstanceExports = null;
-  const WASI_ESUCCESS = 0;
-  const WASI_EBADF = 8;
-  const WASI_EINVAL = 28;
-  const WASI_ENOSYS = 52;
+  const WASI_ERRNO_SUCCESS = 0;
+  const WASI_ERRNO_BADF = 8;
+  const WASI_ERRNO_INVAL = 28;
+  const WASI_ERRNO_NOSYS = 52;
   const WASI_STDIN = 0;
   const WASI_STDOUT = 1;
   const WASI_STDERR = 2;
@@ -18,7 +18,7 @@ export const WASI = function() {
     moduleInstanceExports = instance.exports;
   }
 
-  function fnfixme(name, result = WASI_ESUCCESS) {
+  function fnfixme(name, result = WASI_ERRNO_SUCCESS) {
     return () => {
       console.log('FIXME', name);
       return result;
@@ -29,11 +29,11 @@ export const WASI = function() {
     const view = getModuleMemoryDataView();
     view.setUint32(environCount, 0, true);
     view.setUint32(environBufSize, 0, true);
-    return WASI_ESUCCESS;
+    return WASI_ERRNO_SUCCESS;
   }
 
   function environ_get(environ, environBuf) {
-    return WASI_ESUCCESS;
+    return WASI_ERRNO_SUCCESS;
   }
 
   function fd_fdstat_get(fd, bufPtr) {
@@ -46,7 +46,7 @@ export const WASI = function() {
 
     view.setBigUint64(bufPtr + 8, BigInt(0), true);
     view.setBigUint64(bufPtr + 8 + 8, BigInt(0), true);
-    return WASI_ESUCCESS;
+    return WASI_ERRNO_SUCCESS;
   }
 
   function fd_write(fd, iovs, iovsLen, nwritten) {
@@ -71,14 +71,14 @@ export const WASI = function() {
       console.error(String.fromCharCode.apply(null, bufferBytes));
     }
     view.setUint32(nwritten, bufferBytes.length, true);
-    return WASI_ESUCCESS;
+    return WASI_ERRNO_SUCCESS;
   }
 
   function proc_exit(rval) {
     if (rval !== 0) {
       throw new Error('Program exit with error code ' + rval);
     }
-    return WASI_ENOSYS;
+    return WASI_ERRNO_NOSYS;
   }
 
   function clock_time_get(id, precision, bufPtr) {
@@ -86,14 +86,14 @@ export const WASI = function() {
     // We ignore the id & precision of the clock for now
     const date = new Date();
     view.setBigUint64(bufPtr, BigInt(date.getTime()) * BigInt(1000000), true);
-    return WASI_ESUCCESS;
+    return WASI_ERRNO_SUCCESS;
   }
 
   return {
     setModuleInstance: setModuleInstance,
     fd_fdstat_get: fd_fdstat_get,
-    fd_prestat_get: fnfixme('fd_prestat_get', WASI_EBADF),
-    fd_prestat_dir_name: fnfixme('fd_prestat_dir_name', WASI_EINVAL),
+    fd_prestat_get: fnfixme('fd_prestat_get', WASI_ERRNO_BADF),
+    fd_prestat_dir_name: fnfixme('fd_prestat_dir_name', WASI_ERRNO_INVAL),
     environ_sizes_get: environ_sizes_get,
     environ_get: environ_get,
     fd_open: fnfixme('fd_open'),
