@@ -11,8 +11,8 @@ export const WASI = function() {
   }
 
   function setBigUint64(view, byteOffset, value, littleEndian) {
-    let lowWord = value;
-    let highWord = 0;
+    const lowWord = value;
+    const highWord = 0;
 
     view.setUint32(littleEndian ? 0 : 4, lowWord, littleEndian);
     view.setUint32(littleEndian ? 4 : 0, highWord, littleEndian);
@@ -31,7 +31,7 @@ export const WASI = function() {
   }
 
   function environ_sizes_get(environCount, environBufSize) {
-    let view = getModuleMemoryDataView();
+    const view = getModuleMemoryDataView();
     view.setUint32(environCount, 0, true);
     view.setUint32(environBufSize, 0, true);
     return WASI_ESUCCESS;
@@ -50,7 +50,7 @@ export const WASI = function() {
   }
 
   function fd_fdstat_get(fd, bufPtr) {
-    let view = getModuleMemoryDataView();
+    const view = getModuleMemoryDataView();
 
     view.setUint8(bufPtr, fd);
     view.setUint16(bufPtr + 2, 0, true);
@@ -64,9 +64,9 @@ export const WASI = function() {
   function fd_write(fd, iovs, iovsLen, nwritten) {
     const view = getModuleMemoryDataView();
     const buffers = Array.from({ length: iovsLen }, (_, i) => {
-      let ptr = iovs + i * 8;
-      let buf = view.getUint32(ptr, true);
-      let bufLen = view.getUint32(ptr + 4, true);
+      const ptr = iovs + i * 8;
+      const buf = view.getUint32(ptr, true);
+      const bufLen = view.getUint32(ptr + 4, true);
       return new Uint8Array(moduleInstanceExports.memory.buffer, buf, bufLen);
     });
     const bufferBytes = [];
