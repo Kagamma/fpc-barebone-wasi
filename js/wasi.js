@@ -4,6 +4,9 @@ export const WASI = function() {
   const WASI_EBADF = 8;
   const WASI_EINVAL = 28;
   const WASI_ENOSYS = 52;
+  const WASI_STDIN = 0;
+  const WASI_STDOUT = 1;
+  const WASI_STDERR = 2;
 
   // Private Helpers
   function getModuleMemoryDataView() {
@@ -76,7 +79,12 @@ export const WASI = function() {
         bufferBytes.push(iov[i]);
       }
     }
-    console.log(String.fromCharCode.apply(null, bufferBytes));
+    if (fd === WASI_STDOUT) {
+      console.log(String.fromCharCode.apply(null, bufferBytes));
+    } else
+    if (fd === WASI_STDERR) {
+      console.error(String.fromCharCode.apply(null, bufferBytes));
+    }
     view.setUint32(nwritten, bufferBytes.length, true);
     return WASI_ESUCCESS;
   }
