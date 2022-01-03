@@ -13,14 +13,6 @@ export const WASI = function() {
     return new DataView(moduleInstanceExports.memory.buffer);
   }
 
-  function setBigUint64(view, byteOffset, value, littleEndian) {
-    const lowWord = value;
-    const highWord = 0;
-
-    view.setUint32(byteOffset + littleEndian ? 0 : 4, lowWord, littleEndian);
-    view.setUint32(byteOffset + littleEndian ? 4 : 0, highWord, littleEndian);
-  }
-
   // Public APIs
   function setModuleInstance(instance) {
     moduleInstanceExports = instance.exports;
@@ -59,8 +51,8 @@ export const WASI = function() {
     view.setUint16(bufPtr + 2, 0, true);
     view.setUint16(bufPtr + 4, 0, true);
 
-    setBigUint64(view, bufPtr + 8, 0, true);
-    setBigUint64(view, bufPtr + 8 + 8, 0, true);
+    view.setBigUint64(bufPtr + 8, BigInt(0), true);
+    view.setBigUint64(bufPtr + 8 + 8, BigInt(0), true);
     return WASI_ESUCCESS;
   }
 
@@ -96,6 +88,15 @@ export const WASI = function() {
     return WASI_ENOSYS;
   }
 
+  function clock_time_get(id, precision, bufPtr) {
+    const view = getModuleMemoryDataView();
+    // We ignore the id & precision of the clock for now
+    const date = new Date();
+    view.setBigUint64(bufPtr, BigInt(date.getTime()) * BigInt(1000000), true);
+    view.setBigUint64(bufPtr + 8, BigInt(0), true);
+    return WASI_ESUCCESS;
+  }
+
   return {
     setModuleInstance: setModuleInstance,
     fd_fdstat_get: fd_fdstat_get,
@@ -113,6 +114,6 @@ export const WASI = function() {
     path_readlink: fnfixme('path_readlink'),
     path_open: fnfixme('path_open'),
     proc_exit: proc_exit,
-    clock_time_get: fnfixme('clock_time_get'),
+    clock_time_get: clock_time_get,
   };
 };

@@ -36,7 +36,8 @@ begin
   Hello := THello.Create;
   try
     Hello.Hello('WASM');
+    Writeln('Ticks: ', GetTickCount64);
   finally
-    Hello.Free;
+    FreeAndNil(Hello);
   end;
 end.
