@@ -92,7 +92,7 @@ export const WASI = function() {
     const view = getModuleMemoryDataView();
     // We ignore the id & precision of the clock for now
     const date = new Date();
-    view.setBigUint64(bufPtr, BigInt(date.getTime() * 1000000), true);
+    view.setBigUint64(bufPtr, BigInt(date.getTime()) * BigInt(1000000), true);
     return WASI_ESUCCESS;
   }
 
