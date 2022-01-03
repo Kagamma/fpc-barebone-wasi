@@ -37,14 +37,17 @@ export const WASI = function() {
   }
 
   function fd_prestat_get(fd, bufPtr) {
+    console.log('FIXME', 'fd_prestat_get');
     return WASI_EBADF;
   }
 
   function fd_prestat_dir_name(fd, pathPtr, pathLen) {
+    console.log('FIXME', 'fd_prestat_dir_name');
     return WASI_EINVAL;
   }
 
   function fd_fdstat_get(fd, bufPtr) {
+    console.log('FIXME', 'fd_fdstat_get');
     const view = getModuleMemoryDataView();
 
     view.setUint8(bufPtr, fd);
