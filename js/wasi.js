@@ -1,4 +1,5 @@
 export const WASI = function() {
+  let view = null;
   let moduleInstanceExports = null;
   const WASI_ERRNO_SUCCESS = 0;
   const WASI_ERRNO_BADF = 8;
@@ -9,8 +10,10 @@ export const WASI = function() {
   const WASI_STDERR = 2;
 
   // Private Helpers
-  function getModuleMemoryDataView() {
-    return new DataView(moduleInstanceExports.memory.buffer);
+  function refreshMemory() {
+    if (!view || view.buffer.byteLength === 0) {
+      view = new DataView(moduleInstanceExports.memory.buffer);
+    }
   }
 
   // Public APIs
@@ -26,7 +29,7 @@ export const WASI = function() {
   }
 
   function environ_sizes_get(environCount, environBufSize) {
-    const view = getModuleMemoryDataView();
+    refreshMemory();
     view.setUint32(environCount, 0, true);
     view.setUint32(environBufSize, 0, true);
     return WASI_ERRNO_SUCCESS;
@@ -38,7 +41,7 @@ export const WASI = function() {
 
   function fd_fdstat_get(fd, bufPtr) {
     console.log('FIXME', 'fd_fdstat_get');
-    const view = getModuleMemoryDataView();
+    refreshMemory();
 
     view.setUint8(bufPtr, fd);
     view.setUint16(bufPtr + 2, 0, true);
@@ -50,7 +53,7 @@ export const WASI = function() {
   }
 
   function fd_write(fd, iovs, iovsLen, nwritten) {
-    const view = getModuleMemoryDataView();
+    refreshMemory();
     const buffers = Array.from({ length: iovsLen }, (_, i) => {
       const ptr = iovs + i * 8;
       const buf = view.getUint32(ptr, true);
@@ -82,7 +85,7 @@ export const WASI = function() {
   }
 
   function clock_time_get(id, precision, bufPtr) {
-    const view = getModuleMemoryDataView();
+    refreshMemory();
     // We ignore the id & precision of the clock for now
     const date = new Date();
     view.setBigUint64(bufPtr, BigInt(date.getTime()) * BigInt(1000000), true);
