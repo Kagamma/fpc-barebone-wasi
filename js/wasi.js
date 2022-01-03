@@ -14,8 +14,8 @@ export const WASI = function() {
     const lowWord = value;
     const highWord = 0;
 
-    view.setUint32(littleEndian ? 0 : 4, lowWord, littleEndian);
-    view.setUint32(littleEndian ? 4 : 0, highWord, littleEndian);
+    view.setUint32(byteOffset + littleEndian ? 0 : 4, lowWord, littleEndian);
+    view.setUint32(byteOffset + littleEndian ? 4 : 0, highWord, littleEndian);
   }
 
   // Public APIs
