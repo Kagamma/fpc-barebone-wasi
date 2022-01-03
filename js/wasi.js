@@ -18,10 +18,10 @@ export const WASI = function() {
     moduleInstanceExports = instance.exports;
   }
 
-  function fnfixme(name) {
+  function fnfixme(name, result = WASI_ESUCCESS) {
     return () => {
       console.log('FIXME', name);
-      return WASI_ESUCCESS;
+      return result;
     };
   }
 
@@ -34,16 +34,6 @@ export const WASI = function() {
 
   function environ_get(environ, environBuf) {
     return WASI_ESUCCESS;
-  }
-
-  function fd_prestat_get(fd, bufPtr) {
-    console.log('FIXME', 'fd_prestat_get');
-    return WASI_EBADF;
-  }
-
-  function fd_prestat_dir_name(fd, pathPtr, pathLen) {
-    console.log('FIXME', 'fd_prestat_dir_name');
-    return WASI_EINVAL;
   }
 
   function fd_fdstat_get(fd, bufPtr) {
@@ -102,8 +92,8 @@ export const WASI = function() {
   return {
     setModuleInstance: setModuleInstance,
     fd_fdstat_get: fd_fdstat_get,
-    fd_prestat_get: fd_prestat_get,
-    fd_prestat_dir_name: fd_prestat_dir_name,
+    fd_prestat_get: fnfixme('fd_prestat_get', WASI_EBADF),
+    fd_prestat_dir_name: fnfixme('fd_prestat_dir_name', WASI_EINVAL),
     environ_sizes_get: environ_sizes_get,
     environ_get: environ_get,
     fd_open: fnfixme('fd_open'),
