@@ -1,3 +1,5 @@
+import { pcharToJSString } from './utils.js';
+
 export const WASI = function() {
   let view = null;
   let moduleInstanceExports = null;
@@ -54,26 +56,23 @@ export const WASI = function() {
 
   function fd_write(fd, iovs, iovsLen, nwritten) {
     refreshMemory();
-    const buffers = Array.from({ length: iovsLen }, (_, i) => {
+    const strings = Array.from({ length: iovsLen }, (_, i) => {
       const ptr = iovs + i * 8;
       const buf = view.getUint32(ptr, true);
       const bufLen = view.getUint32(ptr + 4, true);
-      return new Uint8Array(moduleInstanceExports.memory.buffer, buf, bufLen);
+      return pcharToJSString(view, moduleInstanceExports.memory.buffer, buf, bufLen);
     });
-    const bufferBytes = [];
-    for (let j = 0; j < buffers.length; j++) {
-      const iov = buffers[j];
-      for (let i = 0; i < iov.byteLength; i++) {
-        bufferBytes.push(iov[i]);
+    let bytesWritten = 0;
+    for (let i = 0; i < strings.length; i++) {
+      if (fd === WASI_STDOUT) {
+        console.log(strings[i]);
+      } else
+      if (fd === WASI_STDERR) {
+        console.error(strings[i]);
       }
+      bytesWritten += strings[i].length;
     }
-    if (fd === WASI_STDOUT) {
-      console.log(String.fromCharCode.apply(null, bufferBytes));
-    } else
-    if (fd === WASI_STDERR) {
-      console.error(String.fromCharCode.apply(null, bufferBytes));
-    }
-    view.setUint32(nwritten, bufferBytes.length, true);
+    view.setUint32(nwritten, bytesWritten, true);
     return WASI_ERRNO_SUCCESS;
   }
 
