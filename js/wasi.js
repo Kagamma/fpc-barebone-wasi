@@ -56,13 +56,14 @@ export const WASI = function() {
 
   function fd_write(fd, iovs, iovsLen, nwritten) {
     refreshMemory();
+    let bytesWritten = 0;
     const strings = Array.from({ length: iovsLen }, (_, i) => {
       const ptr = iovs + i * 8;
       const buf = view.getUint32(ptr, true);
       const bufLen = view.getUint32(ptr + 4, true);
+      bytesWritten += bufLen;
       return pcharToJSString(view, moduleInstanceExports.memory.buffer, buf, bufLen);
     });
-    let bytesWritten = 0;
     for (let i = 0; i < strings.length; i++) {
       if (fd === WASI_STDOUT) {
         console.log(strings[i]);
@@ -70,7 +71,6 @@ export const WASI = function() {
       if (fd === WASI_STDERR) {
         console.error(strings[i]);
       }
-      bytesWritten += strings[i].length;
     }
     view.setUint32(nwritten, bytesWritten, true);
     return WASI_ERRNO_SUCCESS;
